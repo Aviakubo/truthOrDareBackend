@@ -33,15 +33,19 @@ mongoose.connection
 ///////////////////////////////
 // MODELS
 ////////////////////////////////
-const MargSchema = new mongoose.Schema({
+const PlayerSchema = new mongoose.Schema({
   name: String,
-  instructions: String,
-  ingredients: String,
-  yield: Number,
-  image: String
+  gender: String
 });
-
-const Marg = mongoose.model("Marg", MargSchema);
+const TruthOrDareSchema = new mongoose.Schema({
+    dare: Boolean,
+    instructions: String,
+    pointValue: Number,
+    category: String
+})
+// will need two routes since there are two schemas
+const Player = mongoose.model("Players", PlayerSchema);
+const TruthOrDare = mongoose.model("TruthOrDare", TruthOrDareSchema);
 
 ///////////////////////////////
 // MiddleWare
@@ -51,58 +55,112 @@ app.use(morgan("dev")); // logging
 app.use(express.json()); // parse json bodies
 
 ///////////////////////////////
-// ROUTES
+// PLAYER ROUTES
 ////////////////////////////////
 // create a test route
-app.get("/", (req, res) => {
-  res.send("hello world");
+app.get("/playa", (req, res) => {
+  res.send("hello playa");
 });
 
-// MARG INDEX ROUTE
-app.get("/marg", async (req, res) => {
+// PLAYER INDEX ROUTE
+app.get("/players", async (req, res) => {
   try {
     // send all margs
-    res.json(await Marg.find({}));
+    res.json(await Player.find({}));
   } catch (error) {
     //send error
     res.status(400).json(error);
   }
 });
 
-// MARG CREATE ROUTE
-app.post("/marg", async (req, res) => {
+// PLAYER CREATE ROUTE
+app.post("/players", async (req, res) => {
   try {
     // send all margs
-    res.json(await Marg.create(req.body));
+    res.json(await Player.create(req.body));
   } catch (error) {
     //send error
     res.status(400).json(error);
   }
 });
 
-// MARG DELETE ROUTE
-app.delete("/marg/:id", async (req, res) => {
+// PLAYER DELETE ROUTE
+app.delete("/players/:id", async (req, res) => {
   try {
     // send all marg
-    res.json(await Marg.findByIdAndRemove(req.params.id));
+    res.json(await Player.findByIdAndRemove(req.params.id));
   } catch (error) {
     //send error
     res.status(400).json(error);
   }
 });
 
-// MARG UPDATE ROUTE
-app.put("/marg/:id", async (req, res) => {
+// PLAYER UPDATE ROUTE
+app.put("/players/:id", async (req, res) => {
   try {
     // send all margs
     res.json(
-      await Marg.findByIdAndUpdate(req.params.id, req.body, { new: true })
+      await Player.findByIdAndUpdate(req.params.id, req.body, { new: true })
     );
   } catch (error) {
     //send error
     res.status(400).json(error);
   }
 });
+
+///////////////////////////////
+// TRUTH OR DARE ROUTES
+////////////////////////////////
+// create a test route
+app.get("/truth", (req, res) => {
+    res.send("hello truth or dare");
+  });
+  
+  // TRUTH OR DARE INDEX ROUTE
+  app.get("/truthordare", async (req, res) => {
+    try {
+      // send all margs
+      res.json(await TruthOrDare.find({}));
+    } catch (error) {
+      //send error
+      res.status(400).json(error);
+    }
+  });
+  
+  // TRUTH OR DARE CREATE ROUTE
+  app.post("/truthordare", async (req, res) => {
+    try {
+      // send all margs
+      res.json(await TruthOrDare.create(req.body));
+    } catch (error) {
+      //send error
+      res.status(400).json(error);
+    }
+  });
+  
+  // TRUTH OR DARE DELETE ROUTE
+  app.delete("/truthordare/:id", async (req, res) => {
+    try {
+      // send all marg
+      res.json(await TruthOrDare.findByIdAndRemove(req.params.id));
+    } catch (error) {
+      //send error
+      res.status(400).json(error);
+    }
+  });
+  
+  // TRUTH OR DARE UPDATE ROUTE
+  app.put("/truthordare/:id", async (req, res) => {
+    try {
+      // send all margs
+      res.json(
+        await TruthOrDare.findByIdAndUpdate(req.params.id, req.body, { new: true })
+      );
+    } catch (error) {
+      //send error
+      res.status(400).json(error);
+    }
+  });
 
 ///////////////////////////////
 // LISTENER
