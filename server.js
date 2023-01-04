@@ -40,9 +40,7 @@ const PlayerSchema = new mongoose.Schema({
 const TruthOrDareSchema = new mongoose.Schema({
     dare: Boolean,
     instructions: String,
-    pointValue: Number,
-    category: String
-})
+});
 // will need two routes since there are two schemas
 const Player = mongoose.model("Players", PlayerSchema);
 const TruthOrDare = mongoose.model("TruthOrDare", TruthOrDareSchema);
