@@ -39,9 +39,15 @@ const DareSchema = new mongoose.Schema({
 const TruthSchema = new mongoose.Schema({
     instructions: String
 });
+const TruthsAndDares = new mongoose.Schema({
+  statement: { type: String, required: true },
+  type : { type: String, enum: ['truth', 'dare'], required: true },
+  category: [{ type: String }]
+});
 // will need two routes since there are two schemas
-const Dare = mongoose.model("Players", DareSchema);
-const Truth = mongoose.model("TruthOrDare", TruthSchema);
+const Dare = mongoose.model("dare", DareSchema);
+const Truth = mongoose.model("truth", TruthSchema);
+const TruthDare = mongoose.model("truthAndDares", TruthsAndDares);
 
 ///////////////////////////////
 // MiddleWare
@@ -51,112 +57,71 @@ app.use(morgan("dev")); // logging
 app.use(express.json()); // parse json bodies
 
 ///////////////////////////////
-// DARE ROUTES
+// ROUTES
 ////////////////////////////////
-// create a test route
-app.get("/daretest", (req, res) => {
-  res.send("hello dares");
+
+app.get("/truthanddaretest", (req, res) => {
+  res.send("hello truth and dares");
 });
 
-// DARE INDEX ROUTE
-app.get("/dare", async (req, res) => {
+app.get("/truthanddare", async (req, res) => {
   try {
-    // send all margs
-    res.json(await Dare.find({}));
+    res.json(await TruthDare.find({}));
+  } catch {
+    res.status(400).json(error);
+  }
+});
+
+app.get("/truthanddare/alltruths", async (req, res) => {
+  try {
+    res.json(await TruthDare.find({type: ['truth']}));
+  } catch {
+    res.status(400).json(error);
+  }
+});
+
+app.get("/truthanddare/alldares", async (req, res) => {
+  try {
+    res.json(await TruthDare.find({type: ['dare']}));
+  } catch {
+    res.status(400).json(error);
+  }
+});
+
+app.get("/truthanddare/classic", async (req, res) => {
+  try {
+    res.json(await TruthDare.find({category: ['classic']}));
+  } catch {
+    res.status(400).json(error);
+  }
+});
+
+app.get("/truthanddare/teens", async (req, res) => {
+  try {
+    res.json(await TruthDare.find({category: ['teens']}));
+  } catch {
+    res.status(400).json(error);
+  }
+});
+
+app.get("/truthanddare/party", async (req, res) => {
+  try {
+    res.json(await TruthDare.find({category: ['party']}));
+  } catch {
+    res.status(400).json(error);
+  }
+});
+
+// CREATE ROUTE
+app.post("/truthanddare", async (req, res) => {
+  try {
+    // send all
+    res.json(await TruthDare.create(req.body));
   } catch (error) {
     //send error
     res.status(400).json(error);
   }
 });
-
-// DARE CREATE ROUTE
-app.post("/dare", async (req, res) => {
-  try {
-    // send all margs
-    res.json(await Dare.create(req.body));
-  } catch (error) {
-    //send error
-    res.status(400).json(error);
-  }
-});
-
-// DARE DELETE ROUTE
-app.delete("/dare/:id", async (req, res) => {
-  try {
-    // send all dares
-    res.json(await Dare.findByIdAndRemove(req.params.id));
-  } catch (error) {
-    //send error
-    res.status(400).json(error);
-  }
-});
-
-// DARE UPDATE ROUTE
-app.put("/dare/:id", async (req, res) => {
-  try {
-    // send all dares
-    res.json(
-      await Dare.findByIdAndUpdate(req.params.id, req.body, { new: true })
-    );
-  } catch (error) {
-    //send error
-    res.status(400).json(error);
-  }
-});
-
-///////////////////////////////
-// TRUTH ROUTES
-////////////////////////////////
-// create a test route
-app.get("/truthtest", (req, res) => {
-    res.send("hello truths");
-  });
-  
-  // TRUTH INDEX ROUTE
-  app.get("/truth", async (req, res) => {
-    try {
-      // send all truths
-      res.json(await Truth.find({}));
-    } catch (error) {
-      //send error
-      res.status(400).json(error);
-    }
-  });
-  
-  // TRUTH CREATE ROUTE
-  app.post("/truth", async (req, res) => {
-    try {
-      // send all truths
-      res.json(await Truth.create(req.body));
-    } catch (error) {
-      //send error
-      res.status(400).json(error);
-    }
-  });
-  
-  // TRUTH DELETE ROUTE
-  app.delete("/truth/:id", async (req, res) => {
-    try {
-      // send all truths
-      res.json(await Truth.findByIdAndRemove(req.params.id));
-    } catch (error) {
-      //send error
-      res.status(400).json(error);
-    }
-  });
-  
-  // TRUTH UPDATE ROUTE
-  app.put("/truth/:id", async (req, res) => {
-    try {
-      // send all margs
-      res.json(
-        await Truth.findByIdAndUpdate(req.params.id, req.body, { new: true })
-      );
-    } catch (error) {
-      //send error
-      res.status(400).json(error);
-    }
-  });
 
 ///////////////////////////////
 // LISTENER
