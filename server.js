@@ -33,20 +33,11 @@ mongoose.connection
 ///////////////////////////////
 // MODELS
 ////////////////////////////////
-const DareSchema = new mongoose.Schema({
-  instructions: String
-});
-const TruthSchema = new mongoose.Schema({
-    instructions: String
-});
 const TruthsAndDares = new mongoose.Schema({
   statement: { type: String, required: true },
   type : { type: String, enum: ['truth', 'dare'], required: true },
   category: [{ type: String }]
 });
-// will need two routes since there are two schemas
-const Dare = mongoose.model("dare", DareSchema);
-const Truth = mongoose.model("truth", TruthSchema);
 const TruthDare = mongoose.model("truthAndDares", TruthsAndDares);
 
 ///////////////////////////////
@@ -88,30 +79,53 @@ app.get("/truthanddare/alldares", async (req, res) => {
   }
 });
 
-app.get("/truthanddare/classic", async (req, res) => {
+app.get("/truthanddare/classic/truth", async (req, res) => {
   try {
-    res.json(await TruthDare.find({category: ['classic']}));
+    res.json(await TruthDare.find({category: ['classic'], type: 'truth'}));
   } catch {
     res.status(400).json(error);
   }
 });
 
-app.get("/truthanddare/teens", async (req, res) => {
+app.get("/truthanddare/classic/dare", async (req, res) => {
   try {
-    res.json(await TruthDare.find({category: ['teens']}));
+    res.json(await TruthDare.find({category: ['classic'], type: 'dare'}));
   } catch {
     res.status(400).json(error);
   }
 });
 
-app.get("/truthanddare/party", async (req, res) => {
+app.get("/truthanddare/teens/truth", async (req, res) => {
   try {
-    res.json(await TruthDare.find({category: ['party']}));
+    res.json(await TruthDare.find({category: ['teens'], type: 'truth'}));
   } catch {
     res.status(400).json(error);
   }
 });
 
+app.get("/truthanddare/teens/dare", async (req, res) => {
+  try {
+    res.json(await TruthDare.find({category: ['teens'], type: 'dare'}));
+  } catch {
+    res.status(400).json(error);
+  }
+});
+
+app.get("/truthanddare/party/truth", async (req, res) => {
+  try {
+    res.json(await TruthDare.find({category: ['party'], type: 'truth'}));
+  } catch {
+    res.status(400).json(error);
+  }
+});
+
+app.get("/truthanddare/party/dare", async (req, res) => {
+  try {
+    res.json(await TruthDare.find({category: ['party'], type: 'dare'}));
+  } catch {
+    res.status(400).json(error);
+  }
+});
 // CREATE ROUTE
 app.post("/truthanddare", async (req, res) => {
   try {
