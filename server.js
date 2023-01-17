@@ -15,6 +15,7 @@ const mongoose = require("mongoose");
 // import middlware
 const cors = require("cors");
 const morgan = require("morgan");
+const bodyParser = require('body-parser');
 
 ///////////////////////////////
 // DATABASE CONNECTION
@@ -46,6 +47,7 @@ const TruthDare = mongoose.model("truthAndDares", TruthsAndDares);
 app.use(cors()); // to prevent cors errors, open access to all origins
 app.use(morgan("dev")); // logging
 app.use(express.json()); // parse json bodies
+app.use(bodyParser.json());
 
 ///////////////////////////////
 // ROUTES
@@ -55,77 +57,38 @@ app.get("/truthanddaretest", (req, res) => {
   res.send("hello truth and dares");
 });
 
-app.get("/truthanddare", async (req, res) => {
+app.get('/randomtruth/:category', async (req, res) => {
   try {
-    res.json(await TruthDare.find({}));
-  } catch {
-    res.status(400).json(error);
+    const category = req.params.category;
+    console.log(req.params.category);
+    const randomTruth = await TruthDare.aggregate([
+      { $match: { category: category, type: 'truth' } },
+      { $sample: { size: 10 } },
+      { $project: { statement: 1, _id: 0 } }
+    ]);
+    const statements = randomTruth.map(item => item.statement);
+    res.json(statements);
+  } catch(err) {
+    res.status(500).json({message: err.message});
   }
 });
 
-app.get("/truthanddare/alltruths", async (req, res) => {
+app.get('/randomdare/:category', async (req, res) => {
   try {
-    res.json(await TruthDare.find({type: ['truth']}));
-  } catch {
-    res.status(400).json(error);
+    const category = req.params.category;
+    console.log(req.params.category);
+    const randomDare = await TruthDare.aggregate([
+      { $match: { category: category, type: 'dare' } },
+      { $sample: { size: 10 } },
+      { $project: { statement: 1, _id: 0 } }
+    ]);
+    const statements = randomDare.map(item => item.statement);
+    res.json(statements);
+  } catch(err) {
+    res.status(500).json({message: err.message});
   }
 });
 
-app.get("/truthanddare/alldares", async (req, res) => {
-  try {
-    res.json(await TruthDare.find({type: ['dare']}));
-  } catch {
-    res.status(400).json(error);
-  }
-});
-
-app.get("/truthanddare/classic/truth", async (req, res) => {
-  try {
-    res.json(await TruthDare.find({category: ['classic'], type: 'truth'}));
-  } catch {
-    res.status(400).json(error);
-  }
-});
-
-app.get("/truthanddare/classic/dare", async (req, res) => {
-  try {
-    res.json(await TruthDare.find({category: ['classic'], type: 'dare'}));
-  } catch {
-    res.status(400).json(error);
-  }
-});
-
-app.get("/truthanddare/teens/truth", async (req, res) => {
-  try {
-    res.json(await TruthDare.find({category: ['teens'], type: 'truth'}));
-  } catch {
-    res.status(400).json(error);
-  }
-});
-
-app.get("/truthanddare/teens/dare", async (req, res) => {
-  try {
-    res.json(await TruthDare.find({category: ['teens'], type: 'dare'}));
-  } catch {
-    res.status(400).json(error);
-  }
-});
-
-app.get("/truthanddare/party/truth", async (req, res) => {
-  try {
-    res.json(await TruthDare.find({category: ['party'], type: 'truth'}));
-  } catch {
-    res.status(400).json(error);
-  }
-});
-
-app.get("/truthanddare/party/dare", async (req, res) => {
-  try {
-    res.json(await TruthDare.find({category: ['party'], type: 'dare'}));
-  } catch {
-    res.status(400).json(error);
-  }
-});
 // CREATE ROUTE
 app.post("/truthanddare", async (req, res) => {
   try {
