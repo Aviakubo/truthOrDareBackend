@@ -34,12 +34,19 @@ mongoose.connection
 ///////////////////////////////
 // MODELS
 ////////////////////////////////
-const TruthsAndDares = new mongoose.Schema({
+const mustDoDaresSchema = new mongoose.Schema({
+  order: { type: Number, required: true },
+  statement: { type: String, required: true },
+  who: { type: String, required: true }
+});
+const MustDoDares = mongoose.model("mustDoDares", mustDoDaresSchema);
+
+const truthsAndDaresSchema = new mongoose.Schema({
   statement: { type: String, required: true },
   type : { type: String, enum: ['truth', 'dare'], required: true },
   category: [{ type: String }]
 });
-const TruthDare = mongoose.model("truthAndDares", TruthsAndDares);
+const TruthsAndDares = mongoose.model("truthsAndDares", truthsAndDaresSchema)
 
 ///////////////////////////////
 // MiddleWare
@@ -53,47 +60,79 @@ app.use(bodyParser.json());
 // ROUTES
 ////////////////////////////////
 
-app.get("/truthanddaretest", (req, res) => {
-  res.send("hello truth and dares");
+app.get("/adulttest", (req, res) => {
+  res.send("hello adults");
 });
 
-app.get('/randomtruth/:category', async (req, res) => {
+app.get("/musthaves", async (req, res) => {
   try {
-    const category = req.params.category;
-    console.log(req.params.category);
-    const randomTruth = await TruthDare.aggregate([
-      { $match: { category: category, type: 'truth' } },
-      { $sample: { size: 10 } },
-      { $project: { statement: 1, _id: 0 } }
-    ]);
-    const statements = randomTruth.map(item => item.statement);
-    res.json(statements);
-  } catch(err) {
-    res.status(500).json({message: err.message});
+    const mustHavesStatement = await MustDoDares.find({});
+    const mappedDares = mustHavesStatement.map(mustHaves => mustHaves.statement );
+    res.status(200).json(mappedDares);
+  } catch (error) {
+    //send error
+    res.status(400).json(error);
   }
 });
 
-app.get('/randomdare/:category', async (req, res) => {
+app.get("/musthaveswho", async (req, res) => {
   try {
-    const category = req.params.category;
-    console.log(req.params.category);
-    const randomDare = await TruthDare.aggregate([
-      { $match: { category: category, type: 'dare' } },
-      { $sample: { size: 10 } },
-      { $project: { statement: 1, _id: 0 } }
-    ]);
-    const statements = randomDare.map(item => item.statement);
-    res.json(statements);
-  } catch(err) {
-    res.status(500).json({message: err.message});
+    const mustHavesWho = await MustDoDares.find({});
+    const mappedWho = mustHavesWho.map( who => who.who );
+    res.status(200).json(mappedWho);
+  } catch (error) {
+    //send error
+    res.status(400).json(error);
   }
 });
 
-// CREATE ROUTE
-app.post("/truthanddare", async (req, res) => {
+app.get("/musthavesnew", async (req, res) => {
+  try {
+    const mustHavesMap = await MustDoDares.find({});
+    const mappedMustHaves = mustHavesMap.map(dare => ({ statement: dare.statement, who: dare.who }));
+    res.json(mappedMustHaves);
+  } catch (error) {
+    res.status(400).json(error);
+  }
+})
+
+app.get("/alltruths", async (req, res) => {
+  try {
+    const truths = await TruthsAndDares.find({ type: 'truth' });
+    const truthStatements =  truths.map(truth => truth.statement);
+    return res.status(200).json(truthStatements);
+  } catch (error) {
+    //send error
+    res.status(400).json(error);
+  }
+});
+
+app.get("/alldares", async (req, res) => {
+  try {
+    const dares = await TruthsAndDares.find({ type: 'dare' });
+    const dareStatements = dares.map(dare => dare.statement);
+    return res.status(200).json(dareStatements);
+  } catch (error) {
+    //send error
+    res.status(400).json(error);
+  }
+});
+
+// CREATE ROUTES
+app.post("/musthaves", async (req, res) => {
   try {
     // send all
-    res.json(await TruthDare.create(req.body));
+    res.json(await MustDoDares.create(req.body));
+  } catch (error) {
+    //send error
+    res.status(400).json(error);
+  }
+});
+
+app.post("/allothers", async (req, res) => {
+  try {
+    // send all
+    res.json(await TruthsAndDares.create(req.body));
   } catch (error) {
     //send error
     res.status(400).json(error);
